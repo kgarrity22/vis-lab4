@@ -3,7 +3,6 @@
 <head>
 
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
     <link rel="stylesheet" type="text/css" href="style.css" />
     
@@ -13,23 +12,127 @@
 
 <body>
 
+    <div class="chart">
+        <!-- You will append a SVG here-->
+    </div>
+
 
 
 
 
     <script>
-         d3.csv('wealth-health-2014.csv', d => {
-                return {
-                    ...d, // spread operator
-                    // eu: d.eu === 'true', // convert to boolean
-                    // population: +d.population,
-                    // x: +d.x,
-                    // y: +d.y,
-                }
+        
+        let incomes = [];
+        let life_exp = []
+
+        
+
+        d3.csv('wealth-health-2014.csv', d => {
+                return d3.autoType(d)
             }).then(data => {
-            console.log('data: ', data);
+                
+                console.log("DATA: ", data)
+                
+                for (var i=0; i < data.length; i++){
+                    incomes.push(data[i].Income);
+                    life_exp.push(data[i].LifeExpectancy)
+                }
+                
+
+                console.log("incomes: ", incomes);
+                console.log("life expectancy: ", life_exp);
+
+                const margin = ({ top: 20, right: 20, bottom: 20, left: 20 })
+                const width = 650 - margin.left - margin.right,
+                    height = 500 - margin.top - margin.bottom;
+
+                const svg = d3.select(".chart").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                
+                
+                console.log("testing extent: ", d3.extent(incomes)[0], d3.extent(incomes)[1])
+
+                let incomeMax = d3.extent(incomes)[0];
+                let incomeMin = d3.extent(incomes)[1];
+                let lifeMin = d3.extent(life_exp)[0];
+                let lifeMax = d3.extent(life_exp)[1];
+
+
+                const xScale = d3
+                    .scaleLinear()
+                    .domain([incomeMax, incomeMin])
+                    .range([0, width])
+                
+                const yScale = d3 
+                    .scaleLinear()
+                    .domain([lifeMax, lifeMin])
+                    .range([0, width])
+
+
+
+
+                console.log(xScale(incomeMax));
+                console.log(xScale(incomeMin))
+
+                // add the plot points
+                svg.selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr('cx', d => xScale(d.Income))
+                    .attr('cy', d => yScale(d.LifeExpectancy))
+                    .attr("r", function(d){
+                        if (d.Population > 200000000) {
+                            return 20;
+                        }
+                        else if (d.Population > 10000000) {
+                            return 10;
+                        }
+                        return 5;
+                    })
+                    .attr("fill", "blue")
+                    .attr("opacity", function(d){
+                        if (d.Population > 20000000) {
+                            return 0.5;
+                        }
+                        else if (d.Population > 10000000) {
+                            return 0.75;
+                        }
+                    })
+                    .attr("stroke", "black");
+
+
+                const xAxis = d3.axisBottom()
+                    .scale(xScale)
+                const yAxis = d3.axisRight()
+                    .scale(yScale)
+
+                // Draw the axis
+                svg.append("g")
+                    .attr("class", "axis x-axis")
+                    .call(xAxis)
+                    .attr("transform", `translate(0, ${height})`);
+                
+                svg.append("g")
+                    .attr("class", "axis y-axis")
+                    .call(yAxis)
+                    // .attr("transform", `translate(0, ${height})`);
+
+
 
             }); // end of csv parsing
+
+            
+
+          
+
+          
+
+            
 
 
 
