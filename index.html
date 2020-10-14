@@ -65,12 +65,12 @@
                 const xScale = d3
                     .scaleLinear()
                     .domain([incomeMax, incomeMin])
-                    .range([0, width])
+                    .range([30, width+100])
                 
                 const yScale = d3 
                     .scaleLinear()
                     .domain([lifeMax, lifeMin])
-                    .range([0, width])
+                    .range([0, height])
 
 
 
@@ -108,8 +108,10 @@
 
                 const xAxis = d3.axisBottom()
                     .scale(xScale)
+                    .ticks(10, "s")
                 const yAxis = d3.axisRight()
                     .scale(yScale)
+                    .ticks(20, "s")
 
                 // Draw the axis
                 svg.append("g")
@@ -120,9 +122,23 @@
                 svg.append("g")
                     .attr("class", "axis y-axis")
                     .call(yAxis)
-                    // .attr("transform", `translate(0, ${height})`);
+                    //.attr("transform", `translate(0, ${width})`);
+                
+                svg.append("text")
+                    .attr('x', width-50)
+                    .attr('y', height-3)
+                    // add attrs such as alignment-baseline and text-anchor as necessary
+                    .text("Income")
 
+                svg.append("text")
+                    .attr('x', 6)
+                    .attr('y', 6)
+                    // add attrs such as alignment-baseline and text-anchor as necessary
+                    .text("Life Expectancy")
 
+                // this meeting, then 2 hours on the org lab 
+                // 1 hour on this lab
+                // hopefully nap gets it to work while I work 
 
             }); // end of csv parsing
 
