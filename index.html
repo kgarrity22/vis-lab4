@@ -16,6 +16,14 @@
         <!-- You will append a SVG here-->
     </div>
 
+    <div class="tooltip">
+        <!-- you will programmatically insert tooltip info here-->
+    </div>
+
+    <div class="legend">
+        <!-- programmatically add legend here-->
+    </div>
+
 
 
 
@@ -23,7 +31,8 @@
     <script>
         
         let incomes = [];
-        let life_exp = []
+        let life_exp = [];
+        let regions = [];
 
         
 
@@ -36,11 +45,9 @@
                 for (var i=0; i < data.length; i++){
                     incomes.push(data[i].Income);
                     life_exp.push(data[i].LifeExpectancy)
-                }
-                
+                    regions.push(data[i].Region)
 
-                console.log("incomes: ", incomes);
-                console.log("life expectancy: ", life_exp);
+                }
 
                 const margin = ({ top: 20, right: 20, bottom: 20, left: 20 })
                 const width = 650 - margin.left - margin.right,
@@ -73,10 +80,15 @@
                     .range([0, height])
 
 
-
-
                 console.log(xScale(incomeMax));
                 console.log(xScale(incomeMin))
+
+                let uniqueRegions = new Set(regions)
+                console.log("Regions: ", uniqueRegions)
+
+
+                const colorScale = d3.scaleOrdinal(d3.schemeSet2)
+                    .domain(uniqueRegions)
 
                 // add the plot points
                 svg.selectAll("circle")
@@ -93,17 +105,32 @@
                             return 10;
                         }
                         return 5;
+                    })// ********************NEED TO ADD HERE*********
+                    .attr("fill", function(d){
+                        return colorScale(d.Region)
                     })
-                    .attr("fill", "blue")
-                    .attr("opacity", function(d){
-                        if (d.Population > 20000000) {
-                            return 0.5;
-                        }
-                        else if (d.Population > 10000000) {
-                            return 0.75;
-                        }
+                    .attr("fill-opacity", 0.5)
+                    .attr("stroke", "black")
+                    
+                    .on("mouseenter", (event, d) => {
+                        const pos = d3.pointer(event, window)
+                        d3.select('.tooltip')
+                            .attr("display", "block")
+                            .html(`Country:  ${d.Country} <br> Life Expectancy:  ${d.LifeExpectancy} <br> Population:  ${d3.format(",d")(d.Population)} <br> Income:  ${d3.format("$,d")(d.Income)}  <br> Region:  ${d.Region}`)
+                            .style("left", (pos[0] + 10 + "px"))
+                            .style("font-family", "Gill Sans")
+                            .style("font-size", "10px")
+                            .style("background-color", "lightgray")
+                            .style("top", (pos[1] + 10 + "px"));
+                        
                     })
-                    .attr("stroke", "black");
+                    .on("mouseleave", (event, d) => {
+                        d3.select('.tooltip')
+                            .attr("display", "none")
+                            .html("");
+                    })
+
+                    
 
 
                 const xAxis = d3.axisBottom()
@@ -134,11 +161,39 @@
                     .attr('x', 6)
                     .attr('y', 6)
                     // add attrs such as alignment-baseline and text-anchor as necessary
-                    .text("Life Expectancy")
+                    .text("Life Expectancy");
 
-                // this meeting, then 2 hours on the org lab 
-                // 1 hour on this lab
-                // hopefully nap gets it to work while I work 
+
+                const legend = svg.selectAll('.legend')
+                    .data(colorScale.domain())
+                    .enter()
+                    .append('g')
+                    .attr('class', 'legend')
+                    
+                legend.selectAll("rect")
+                    .data(uniqueRegions)
+                    .enter()
+                    .append("rect")
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .attr("x", 389)
+                    .attr("y", function (d, i) {
+                        return (i * 20) + 300;
+                    })
+                    .style("fill", function (d, i) {
+                        return colorScale(i)
+                    })
+                    
+                    
+                legend.append('text')
+                    .attr('x', 400)
+                    .attr('y', function(d, i) {
+                            return (i * 20) + 309;
+                        })
+                    .text(function (d) { return d; })
+                    .style("font-size", 12);
+
+                
 
             }); // end of csv parsing
 
