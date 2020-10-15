@@ -12,6 +12,7 @@
 
 <body>
 
+    <h1>Wealth & Health of Nations</h1>
     <div class="chart">
         <!-- You will append a SVG here-->
     </div>
@@ -97,15 +98,23 @@
                     .append("circle")
                     .attr('cx', d => xScale(d.Income))
                     .attr('cy', d => yScale(d.LifeExpectancy))
-                    .attr("r", function(d){
-                        if (d.Population > 200000000) {
+                    .attr("r", function (d) {
+                        if (d.Population > 1000000000) {
                             return 20;
                         }
-                        else if (d.Population > 10000000) {
-                            return 10;
+                        else if (d.Population > 100000000) {
+                            return 8;
                         }
-                        return 5;
-                    })// ********************NEED TO ADD HERE*********
+                        else if (d.Population > 10000000) {
+                            return 5;
+                        }
+                        else if (d.Population > 1000000) {
+                            return 4;
+                        }
+                        else {
+                            return 3;
+                        }
+                    })
                     .attr("fill", function(d){
                         return colorScale(d.Region)
                     })
@@ -158,8 +167,9 @@
                     .text("Income")
 
                 svg.append("text")
-                    .attr('x', 6)
-                    .attr('y', 6)
+                    .attr('x', 30)
+                    .attr('y', 8)
+                    .attr("class", "yax")
                     // add attrs such as alignment-baseline and text-anchor as necessary
                     .text("Life Expectancy");
 
